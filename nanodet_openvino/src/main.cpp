@@ -105,6 +105,7 @@ std::vector<int> get_bboxes(const cv::Mat& bgr, const std::vector<BoxInfo>& bbox
         boundingboxes.push_back(point);
         point = (bbox.y2 - effect_roi.y) * height_ratio;
         boundingboxes.push_back(point);
+        boundingboxes.push_back(bbox.score * 100);
     }
 
     return boundingboxes;

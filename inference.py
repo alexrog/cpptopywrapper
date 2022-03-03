@@ -1,23 +1,25 @@
-import nanodet_openvino as nanodet
+import nanodet_openvino as nanodet # the cpp to py wrapper for our nanodet inference
 from BoundingBoxes import BoundingBoxes
 import pyrealsense2 as rs
 import numpy as np
 import cv2
 import time
 
+# DONT USE THIS, NOT FINISHED YET
 def video_inference(video_pth):
     width = 512
     height = 288
     cap = cv2.VideoCapture(video_pth)
-    out = cv2.VideoWriter('outpy.avi',cv2.VideoWriter_fourcc('M','J','P','G'), 10, (cap.get(3), cap.get(4)))
+    # out = cv2.VideoWriter('outpy.avi',cv2.VideoWriter_fourcc('M','J','P','G'), 10, (cap.get(3), cap.get(4)))
     if cap.isOpened() == False:
         print("Error opening video file")
-    while cap.isOpened() == False:
+    while cap.isOpened() == True:
         ret, frame = cap.read()
         if ret:
-            img = cv2.resize(frame, (height, width))
-            bboxes = nanodet.inference(img)
+            # img = cv2.resize(frame, (height, width))
+            bboxes = nanodet.inference(frame)
             bboxes = BoundingBoxes(bboxes)
+            detects, scores, classes = bboxes.bytetrack_input()
         else:
             break
     cap.release()
@@ -71,6 +73,9 @@ def live_inference():
 
         # get the cropped images from bounding box (can be used for other algorithms)
         crop_imgs = bboxes.crop(color_image)
+        
+        # get the information to pass to bytetrack, use color_image
+        detects, scores, classes = bboxes.bytetrack_input()
 
         print(bboxes)
 
@@ -86,6 +91,10 @@ def show_cropped_imgs(crop_imgs):
         cv2.imshow("image", crop_img)
         cv2.waitKey(0)
 
-if nanodet.isModelInit() == False:
-    nanodet.initModel("nanodet_model/nanodet.xml", "MYRIAD")
-live_inference()
+if __name__ == "__main__":
+    if nanodet.isModelInit() == False:
+        print('Initializing model')
+        nanodet.initModel("nanodet_model/nanodet.xml", "MYRIAD")
+        print('Model has been initialized')
+    # live_inference()
+    video_inference('rc1.m4v')
