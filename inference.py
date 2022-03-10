@@ -5,25 +5,6 @@ import numpy as np
 import cv2
 import time
 
-# DONT USE THIS, NOT FINISHED YET
-def video_inference(video_pth):
-    width = 512
-    height = 288
-    cap = cv2.VideoCapture(video_pth)
-    # out = cv2.VideoWriter('outpy.avi',cv2.VideoWriter_fourcc('M','J','P','G'), 10, (cap.get(3), cap.get(4)))
-    if cap.isOpened() == False:
-        print("Error opening video file")
-    while cap.isOpened() == True:
-        ret, frame = cap.read()
-        if ret:
-            # img = cv2.resize(frame, (height, width))
-            bboxes = nanodet.inference(frame)
-            bboxes = BoundingBoxes(bboxes)
-            detects, scores, classes = bboxes.bytetrack_input()
-        else:
-            break
-    cap.release()
-
 # function which sets up the intel realsense camera
 def setup_camera():
     pipeline = rs.pipeline()
@@ -55,6 +36,14 @@ def setup_camera():
     pipeline.start(config)
     return pipeline
 
+def initialize_model(filepath, device):
+    if nanodet.isModelInit() == False:
+        print('Initializing model.')
+        nanodet.initModel(filepath, device)
+        print('Model has been initialized.')
+    else:
+        print('Already intialized.') 
+
 # function which gets live feed from camera and performs inference
 def live_inference():
     pipeline = setup_camera()
@@ -77,9 +66,9 @@ def live_inference():
         # get the information to pass to bytetrack, use color_image
         detects, scores, classes = bboxes.bytetrack_input()
 
-        print(bboxes)
+        # PUBLISH ROS NODE HERE USING bboxes
 
-        # cv2.imshow('RealSense', color_image)
+        cv2.imshow('RealSense', color_image)
         if(cv2.waitKey(1) >= 0):
             break
         print(time.time()-start)
@@ -92,9 +81,5 @@ def show_cropped_imgs(crop_imgs):
         cv2.waitKey(0)
 
 if __name__ == "__main__":
-    if nanodet.isModelInit() == False:
-        print('Initializing model')
-        nanodet.initModel("nanodet_model/nanodet.xml", "MYRIAD")
-        print('Model has been initialized')
-    # live_inference()
-    video_inference('rc1.m4v')
+    initialize_model("nanodet_model/nanodet.xml","MYRIAD")
+    live_inference()
