@@ -18,7 +18,7 @@ pip install -r requirements.txt
 
 ## Usage
 
-In the file `inference.py`, there exists the function `live_inference()` which gets the live camera feed and performs an inference on it. The output of the `nanodet.inference(frame)` is of type `BoundingBoxes` which is defined in `BoundingBoxes.py`. The information contained in this class can be used to publish the bounding box to a ROS node.
+In the file `inference.py`, there exists the function `live_inference()` which gets the live camera feed and performs an inference on it. The output of the `nanodet.inference(frame)` is of type `BoundingBoxes` which is defined in `BoundingBoxes.py`. The information contained in this class can be used to publish the bounding box to a ROS node. There is a function in the class called `BoundingBoxes.ros_format()`. The variable `ros_format` in `inference.py` contains the output to be published to the ros node. Add the publisher inside the `if` statement immediately after.
 
 The `initialize_model` function is used to initialize the nanodet model. The parameters to this model are the file path to the nanodet model and the device to be used for inferencing: `CPU` or `MYRIAD`.
 

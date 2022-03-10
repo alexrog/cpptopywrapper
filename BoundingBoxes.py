@@ -2,9 +2,11 @@ import numpy as np
 import cv2
 
 class BoundingBoxes:
-    def __init__(self, boxesList):
+    def __init__(self, boxesList, imgSize):
         assert(len(boxesList) % 5 == 0)
         self.boxes = []
+        self.width = imgSize[1]
+        self.height = imgSize[0]
         for i in range(int(len(boxesList) / 5)):
             self.boxes.append(BoundingBox(boxesList[i*5:(i+1)*5]))
         self.num = len(self.boxes)
@@ -33,6 +35,16 @@ class BoundingBoxes:
             classes.append([0])
 
         return detects, scores, classes
+
+    def ros_format(self):
+        if self.num > 1:
+            print('more than 1 bounding box, need to account for this')
+        elif self.num == 0:
+            return {}
+
+        box = self.boxes[0]
+
+        return {"x1": box.x1/self.width, "y1": box.y1/self.height, "x2": box.x2/self.width, "y2": box.y2/self.height, "width": self.width, "height": self.height}
     
     def __str__(self):
         s = f'{self.num} bounding box{"es" if self.num != 1 else ""}\n'

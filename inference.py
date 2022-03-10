@@ -58,7 +58,7 @@ def live_inference():
 
         # perform inference and store bounding boxes
         bboxes = nanodet.inference(color_image)
-        bboxes = BoundingBoxes(bboxes) # this class is in BoundingBoxes.py
+        bboxes = BoundingBoxes(bboxes, color_image.shape) # this class is in BoundingBoxes.py
 
         # get the cropped images from bounding box (can be used for other algorithms)
         crop_imgs = bboxes.crop(color_image)
@@ -66,7 +66,10 @@ def live_inference():
         # get the information to pass to bytetrack, use color_image
         detects, scores, classes = bboxes.bytetrack_input()
 
-        # PUBLISH ROS NODE HERE USING bboxes
+        ros_format = bboxes.ros_format()
+        if(ros_format != 0):
+            # PUBLISH ROS NODE
+            pass
 
         cv2.imshow('RealSense', color_image)
         if(cv2.waitKey(1) >= 0):
